@@ -46,6 +46,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddHostedService<SqlDependencyService>();
 
 var app = builder.Build();
 

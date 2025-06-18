@@ -405,6 +405,13 @@
                 renderProducts();
                 showNotification('Product deleted!', 'info');
             });
+
+            connection.on("ProductsRefreshed", function (updatedProducts) {
+                console.log('Products refreshed from database change:', updatedProducts);
+                products = updatedProducts;
+                renderProducts();
+                showNotification('Data refreshed from database changes!', 'info');
+            });
         }
 
         // Load products from API

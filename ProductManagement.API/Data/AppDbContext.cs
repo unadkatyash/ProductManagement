@@ -18,5 +18,12 @@ namespace ProductManagement.API.Data
                 entity.HasIndex(e => e.Name);
             });
         }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.EnableSensitiveDataLogging();
+            }
+        }
     }
 }
