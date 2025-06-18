@@ -15,6 +15,8 @@ namespace ProductManagement.API.Service
         private readonly string _connectionString;
         private SqlDependency _dependency;
         private bool _disposed = false;
+        private SqlConnection _connection;
+        private SqlCommand _command;
 
         public SqlDependencyService(IServiceProvider serviceProvider,
             ILogger<SqlDependencyService> logger, IConfiguration configuration)
@@ -41,18 +43,35 @@ namespace ProductManagement.API.Service
 
         private void StartListening()
         {
-            using var connection = new SqlConnection(_connectionString);
-            connection.Open();
+            try
+            {
+                // Dispose previous connection if exists
+                _connection?.Dispose();
+                _command?.Dispose();
 
-            using var command = new SqlCommand(
-                "SELECT Id, Name, Category, Price, Stock, CreatedAt, UpdatedAt FROM Products",
-                connection);
+                _connection = new SqlConnection(_connectionString);
+                _connection.Open();
 
-            _dependency = new SqlDependency(command);
-            _dependency.OnChange += OnDependencyChange;
+                // Use a more specific query that SqlDependency can handle
+                _command = new SqlCommand(
+                    "SELECT Id, Name, Category, Price, Stock, CreatedAt, UpdatedAt FROM dbo.Products",
+                    _connection);
 
-            // Execute the command to establish the dependency
-            command.ExecuteReader();
+                _dependency = new SqlDependency(_command);
+                _dependency.OnChange += OnDependencyChange;
+
+                // Execute the command but don't dispose the connection
+                using (var reader = _command.ExecuteReader())
+                {
+                    // Just execute to establish dependency
+                }
+
+                _logger.LogInformation("SqlDependency listening started");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error starting SqlDependency");
+            }
         }
 
         private async void OnDependencyChange(object sender, SqlNotificationEventArgs e)
@@ -86,7 +105,14 @@ namespace ProductManagement.API.Service
         {
             if (!_disposed)
             {
-                _dependency.OnChange -= OnDependencyChange;
+                if (_dependency != null)
+                {
+                    _dependency.OnChange -= OnDependencyChange;
+                }
+
+                _command?.Dispose();
+                _connection?.Dispose();
+
                 SqlDependency.Stop(_connectionString);
                 _disposed = true;
             }
