@@ -28,6 +28,15 @@ namespace ProductManagement.API.Controllers
         public async Task<ActionResult<List<Product>>> GetProducts()
         {
             var products = await _productService.GetAllProductsAsync();
+            //var productViewModel = products.Select(p => new ProductViewModel
+            //{
+            //    Id = p.Id,
+            //    Name = p.Name,
+            //    Price = p.Price,
+            //    Stock = p.Stock,
+            //    CategoryName = p.Category?.CategoryName ?? "",
+            //    CreatedAt = p.CreatedAt
+            //}).ToList();
             return Ok(products);
         }
 
@@ -65,7 +74,7 @@ namespace ProductManagement.API.Controllers
             var newProduct = new Product
             {
                 Name = product.Name,
-                Category = product.Category,
+                CategoryId = product.CategoryId,
                 Price = product.Price,
                 Stock = product.Stock
             };
@@ -95,7 +104,7 @@ namespace ProductManagement.API.Controllers
             var updateProduct = new Product
             {
                 Name = product.Name,
-                Category = product.Category,
+                CategoryId = product.CategoryId,
                 Price = product.Price,
                 Stock = product.Stock
             };

@@ -17,8 +17,7 @@ namespace ProductManagement.API.Model.ViewModels
         /// </summary>
         /// <example>Electronics</example>
         [Required]
-        [StringLength(50, MinimumLength = 1)]
-        public string Category { get; set; } = string.Empty;
+        public int CategoryId { get; set; }
 
         /// <summary>
         /// Product price

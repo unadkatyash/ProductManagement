@@ -45,8 +45,10 @@ builder.Services.AddSwaggerGen(c =>
     c.DocInclusionPredicate((name, api) => true);
 });
 
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddHostedService<SqlDependencyService>();
+builder.Services.AddHostedService<ProductDependencyService>();
+builder.Services.AddHostedService<CategoryDependencyService>();
 
 var app = builder.Build();
 
@@ -72,22 +74,22 @@ app.MapControllers();
 app.MapHub<ProductHub>("/productHub");
 
 // Seed database
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//    context.Database.EnsureCreated();
 
-    if (!context.Products.Any())
-    {
-        context.Products.AddRange(
-            new Product { Name = "Laptop", Category = "Electronics", Price = 999.99m, Stock = 50 },
-            new Product { Name = "Mouse", Category = "Electronics", Price = 25.99m, Stock = 100 },
-            new Product { Name = "Keyboard", Category = "Electronics", Price = 75.50m, Stock = 75 },
-            new Product { Name = "Monitor", Category = "Electronics", Price = 299.99m, Stock = 30 },
-            new Product { Name = "Headphones", Category = "Audio", Price = 199.99m, Stock = 60 }
-        );
-        context.SaveChanges();
-    }
-}
+//    if (!context.Products.Any())
+//    {
+//        context.Products.AddRange(
+//            new Product { Name = "Laptop", Category = "Electronics", Price = 999.99m, Stock = 50 },
+//            new Product { Name = "Mouse", Category = "Electronics", Price = 25.99m, Stock = 100 },
+//            new Product { Name = "Keyboard", Category = "Electronics", Price = 75.50m, Stock = 75 },
+//            new Product { Name = "Monitor", Category = "Electronics", Price = 299.99m, Stock = 30 },
+//            new Product { Name = "Headphones", Category = "Audio", Price = 199.99m, Stock = 60 }
+//        );
+//        context.SaveChanges();
+//    }
+//}
 
 app.Run();

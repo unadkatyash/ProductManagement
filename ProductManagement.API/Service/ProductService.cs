@@ -20,7 +20,7 @@ namespace ProductManagement.API.Service
 
         public async Task<List<Product>> GetAllProductsAsync()
         {
-            return await _context.Products.OrderBy(p => p.Name).ToListAsync();
+            return await _context.Products.Include(a => a.Category).OrderBy(p => p.Name).ToListAsync();
         }
 
         public async Task<Product?> GetProductByIdAsync(int id)
@@ -49,7 +49,7 @@ namespace ProductManagement.API.Service
             if (existingProduct == null) return null;
 
             existingProduct.Name = product.Name;
-            existingProduct.Category = product.Category;
+            existingProduct.CategoryId = product.CategoryId;
             existingProduct.Price = product.Price;
             existingProduct.Stock = product.Stock;
             existingProduct.UpdatedAt = DateTime.UtcNow;

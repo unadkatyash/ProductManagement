@@ -8,18 +8,18 @@ using System.Data;
 
 namespace ProductManagement.API.Service
 {
-    public class SqlDependencyService : IHostedService, IDisposable
+    public class CategoryDependencyService : IHostedService, IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<SqlDependencyService> _logger;
+        private readonly ILogger<CategoryDependencyService> _logger;
         private readonly string _connectionString;
         private SqlDependency _dependency;
         private bool _disposed = false;
         private SqlConnection _connection;
         private SqlCommand _command;
 
-        public SqlDependencyService(IServiceProvider serviceProvider,
-            ILogger<SqlDependencyService> logger, IConfiguration configuration)
+        public CategoryDependencyService(IServiceProvider serviceProvider,
+            ILogger<CategoryDependencyService> logger, IConfiguration configuration)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
@@ -54,7 +54,7 @@ namespace ProductManagement.API.Service
 
                 // Use a more specific query that SqlDependency can handle
                 _command = new SqlCommand(
-                    "SELECT Id, Name, Category, Price, Stock, CreatedAt, UpdatedAt FROM dbo.Products",
+                    "SELECT Id, CategoryName, CreatedAt, UpdatedAt FROM dbo.Categories",
                     _connection);
 
                 _dependency = new SqlDependency(_command);
@@ -86,10 +86,10 @@ namespace ProductManagement.API.Service
 
                 try
                 {
-                    // Get updated products and notify clients
-                    var products = await context.Products.OrderBy(p => p.Name).ToListAsync();
+                    // Get updated categories and notify clients
+                    var categories = await context.Categories.OrderBy(p => p.CategoryName).ToListAsync();
                     await hubContext.Clients.Group("ProductUpdates")
-                        .SendAsync("ProductsRefreshed", products);
+                        .SendAsync("CategoriesRefreshed", categories);
                 }
                 catch (Exception ex)
                 {
